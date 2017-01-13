@@ -1,4 +1,4 @@
-# mongo-query-aggregator
+# qgprofiler
 
 ### Installation
 using pip:
