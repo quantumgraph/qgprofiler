@@ -14,11 +14,11 @@ setup(
     license='MIT',
     packages=['qgprofiler'],
     long_description=read('README.md'),
-    keywords = ['testing', 'logging', 'example'],
+    keywords = ['profiler', 'monitoring', 'logging', 'utility'],
     zip_safe=False,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Topic :: Utilities',
-        'License :: MIT License',
+        'License :: Freeware',
     ],
 )

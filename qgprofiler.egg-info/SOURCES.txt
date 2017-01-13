@@ -1,0 +1,12 @@
+setup.cfg
+setup.py
+qgprofiler/__init__.py
+qgprofiler/helper.py
+qgprofiler/node.py
+qgprofiler/qg_profiler.py
+qgprofiler/qg_profiler_aggregator.py
+qgprofiler.egg-info/PKG-INFO
+qgprofiler.egg-info/SOURCES.txt
+qgprofiler.egg-info/dependency_links.txt
+qgprofiler.egg-info/not-zip-safe
+qgprofiler.egg-info/top_level.txt
