@@ -1,13 +1,13 @@
 from .node import Node, NodeList
-from .helper import make_folder_and_get_file_type
+from .helper import get_real_file_path, get_file_type
 import json
 
 class QGProfiler(object):
     def __init__(self, root_name, file_path):
         self.root_node = Node(root_name, None)
         self.current_node = self.root_node
-        self.file_path = file_path
-        self.file_type = make_folder_and_get_file_type(file_path)
+        self.file_type = get_file_type(file_path)
+        self.file_path = get_real_file_path(file_path)
 
     def push(self, name):
         index = self.current_node.is_child_in_children(name)
@@ -17,6 +17,7 @@ class QGProfiler(object):
             self.current_node = new_node
         else:
             self.current_node = self.current_node.get_child(index)
+            self.current_node.increment_count()
             self.current_node.modify_time()
 
     def pop(self):
@@ -39,13 +40,17 @@ class QGProfiler(object):
             _dict = {}
             _dict['name'] = node.get_name()
             _dict['value'] = node.get_value()
+            _dict['count'] = node.get_count()
             _dict['children'] = [recursive_json_generator(child_node) for child_node in node.get_children()]
             return _dict
 
         def recursive_xml_generator(node):
-            _xml = '<' + node.get_name() + ' value="' + str(node.get_value()) + '">'
+            node_name = node.get_name().replace(' ', '_')
+            node_value = str(node.get_value())
+            node_count = str(node.get_count())
+            _xml = '<' + node_name + ' value="' + node_value + '" count="' + node_count + '">'
             _xml += ''.join([recursive_xml_generator(child_node) for child_node in node.get_children()]) 
-            _xml += '</' + node.get_name() + '>'
+            _xml += '</' + node_name + '>'
             return _xml
 
         if self.file_type == 'json':

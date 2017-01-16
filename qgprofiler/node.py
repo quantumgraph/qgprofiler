@@ -9,6 +9,7 @@ class Node(object):
         self.__children_node = NodeList()
         self.__index_of_child = {}
         self.__value = 0
+        self.__count = 1
 
     def __repr__(self):
         return '<%s.Node object with value %s at %s>' %(self.__name, self.__value, hex(id(self)))
@@ -19,16 +20,25 @@ class Node(object):
     def get_value(self):
         return self.__value
 
+    def get_count(self):
+        return self.__count
+
     def get_parent(self):
         return self.__parent_node
 
     def set_value(self, value):
         self.__value = value
 
+    def set_count(self, count):
+        self.__count = count
+
     def increment_value(self):
         datetime_now = datetime.utcnow()
         time_delta = (datetime_now - self.__modified_time).total_seconds()
         self.__value += time_delta
+
+    def increment_count(self):
+        self.__count += 1
 
     def get_children(self):
         return self.__children_node
