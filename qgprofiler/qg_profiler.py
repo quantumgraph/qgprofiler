@@ -1,13 +1,13 @@
-import json
 from .node import Node, NodeList
-from .helper import make_folder
+from .helper import make_folder_and_get_file_type
+import json
 
 class QGProfiler(object):
-    def __init__(self, root_name, folder_path, file_name):
+    def __init__(self, root_name, file_path):
         self.root_node = Node(root_name, None)
         self.current_node = self.root_node
-        self.folder_path = make_folder(folder_path)
-        self.file_name = file_name
+        self.file_path = file_path
+        self.file_type = make_folder_and_get_file_type(file_path)
 
     def push(self, name):
         index = self.current_node.is_child_in_children(name)
@@ -34,13 +34,13 @@ class QGProfiler(object):
         else:
             raise ValueError('You are not at the root node')
 
-    def generate_file(self, _type):
+    def generate_file(self):
         def recursive_json_generator(node):
             _dict = {}
             _dict['name'] = node.get_name()
             _dict['value'] = node.get_value()
             _dict['children'] = [recursive_json_generator(child_node) for child_node in node.get_children()]
-            return json.dumps(_dict)
+            return _dict
 
         def recursive_xml_generator(node):
             _xml = '<' + node.get_name() + ' value="' + str(node.get_value()) + '">'
@@ -48,14 +48,14 @@ class QGProfiler(object):
             _xml += '</' + node.get_name() + '>'
             return _xml
 
-        if _type == 'json':
-            text = recursive_json_generator(self.root_node)
-            filename = '/'.join([self.folder_path, self.file_name]) + '.json'
-        elif _type == 'xml':
+        if self.file_type == 'json':
+            _json = recursive_json_generator(self.root_node)
+            text = json.dumps(_json)
+            self.write_file(text)
+        elif self.file_type == 'xml':
             text = recursive_xml_generator(self.root_node)
-            filename = '/'.join([self.folder_path, self.file_name]) + '.xml'
-        else:
-            raise ValueError('Only "json" and "xml" are accepted as an argument')
+            self.write_file(text)
 
-        with open(filename, 'w') as f:
+    def write_file(self, text):
+        with open(self.file_path, 'w') as f:
             f.write(text)
