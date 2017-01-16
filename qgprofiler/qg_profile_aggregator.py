@@ -1,12 +1,15 @@
 from node import Node, NodeList
 from .qg_profiler import QGProfiler
-from .helper import make_folder
+from .helper import make_folder, get_folder
+import glob
 
 class QGProfileAggregator(object):
-    def __init__(self, folder_path, file_name):
+    def __init__(self, in_folder_path, in_file_name_regex, out_folder_path, out_file_name):
         self.root_node = Node('i_am_root', None)
-        self.folder_path = make_folder(folder_path)
-        self.file_name = file_name
+        self.in_folder_path = get_folder(in_folder_path)
+        self.in_file_name_regex = in_file_name_regex
+        self.out_folder_path = make_folder(out_folder_path)
+        self.out_file_name = out_file_name
 
     def add_json(self, _json):
         new_node = self.make_node_from_json(_json, self.root_node)
@@ -37,6 +40,11 @@ class QGProfileAggregator(object):
         return new_node
 
     def generate_file(self, _type):
-        qg_profiler = QGProfiler('test', self.folder_path, self.file_name)
+        for filename in glob.iglob(self.in_folder_path + '/' + self.in_file_name_regex):
+            with open(filename, 'r') as f:
+                raw_json = f.read()
+                _json = json.loads(raw_json)
+                self.add_json(_json)
+        qg_profiler = QGProfiler('test', self.out_folder_path, self.out_file_name)
         qg_profiler.root_node = self.root_node
         return qg_profiler.generate_file(_type)
