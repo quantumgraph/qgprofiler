@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name='qgprofiler',
-    version='0.1.1',
+    version='0.1.2',
     description='Profiler with time deterministic profiling of functions',
     url='https://github.com/quantumgraph/qgprofiler',
     author='QuantumGraph',
