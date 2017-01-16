@@ -16,8 +16,3 @@ def make_folder_and_get_file_type(file_path):
     make_folder(folder_path)
     return file_type
 
-
-def get_folder(folder_path):
-    if folder_path[-1] == '/':
-        folder_path = folder_path[:-1]
-    return folder_path
