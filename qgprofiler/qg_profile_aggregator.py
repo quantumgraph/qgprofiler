@@ -2,6 +2,7 @@ from node import Node, NodeList
 from .qg_profiler import QGProfiler
 from .helper import make_folder, get_folder
 import glob
+import json
 
 class QGProfileAggregator(object):
     def __init__(self, in_folder_path, in_file_name_regex, out_folder_path, out_file_name):
