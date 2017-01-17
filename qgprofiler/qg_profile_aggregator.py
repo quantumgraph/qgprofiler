@@ -1,6 +1,6 @@
 from node import Node, NodeList
 from .qg_profiler import QGProfiler
-from .helper import get_real_file_path, get_file_type
+from .helper import get_real_file_path, get_file_type, xml_scanner
 import glob
 import json
 
@@ -42,12 +42,41 @@ class QGProfileAggregator(object):
             new_node.add_child(child_node)
         return new_node
 
+    def add_xml(self, _xml):
+        current_node = self.root_node
+        xml_gen = xml_scanner(_xml)
+        for each in xml_gen:
+            if each[0] == 'START':
+                name = each[1]
+                value = float(each[2]['value'])
+                count = int(each[2]['count'])
+                index = current_node.is_child_in_children(name)
+                if index == -1:
+                    new_node = Node(name, current_node)
+                    new_node.set_value(value)
+                    new_node.set_count(count)
+                    current_node.add_child(new_node)
+                    current_node = new_node
+                else:
+                    current_node = current_node.get_child(index)
+                    current_node.increment_value_by(value)
+                    current_node.increment_count_by(count)
+            elif each[0] == 'END':
+                current_node = current_node.get_parent()
+
     def generate_file(self):
-        for filename in glob.iglob(self.in_file_path):
-            with open(filename, 'r') as f:
-                raw_json = f.read()
-                _json = json.loads(raw_json)
-                self.add_json(_json)
+        for file_path in glob.iglob(self.in_file_path):
+            filename = file_path.split('/')[-1]
+            if filename.endswith('.json'):
+                with open(filename, 'r') as f:
+                    raw_json = f.read()
+                    _json = json.loads(raw_json)
+                    self.add_json(_json)
+            elif filename.endswith('.xml'):
+                with open(filename, 'r') as f:
+                    _xml = f.read()
+                    self.add_xml(_xml)
+
         qg_profiler = QGProfiler('test', self.out_file_path)
         if len(self.root_node.get_children()) == 1:
             qg_profiler.root_node = self.root_node.get_child(0)

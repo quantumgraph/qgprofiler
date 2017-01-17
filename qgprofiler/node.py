@@ -37,8 +37,14 @@ class Node(object):
         time_delta = (datetime_now - self.__modified_time).total_seconds()
         self.__value += time_delta
 
+    def increment_value_by(self, value):
+        self.__value += value
+
     def increment_count(self):
         self.__count += 1
+
+    def increment_count_by(self, count):
+        self.__count += count
 
     def get_children(self):
         return self.__children_node
