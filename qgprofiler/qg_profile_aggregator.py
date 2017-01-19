@@ -47,7 +47,7 @@ class QGProfileAggregator(object):
         xml_gen = xml_scanner(_xml)
         for each in xml_gen:
             if each[0] == 'START':
-                name = each[1]
+                name = str(each[2]['name'])
                 value = float(each[2]['value'])
                 count = int(each[2]['count'])
                 index = current_node.is_child_in_children(name)

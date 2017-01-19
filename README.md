@@ -109,15 +109,15 @@ This generates a file which contains a json
 
 File generated if .xml is given as extension in the filename
 ```xml
-<program_root_name value="0.00069" count="1">
-  <test1 value="0.000378" count="1">
-    <test11 value="4.3e-05" count="1"></test11>
-    <test12 value="0.000153" count="2">
-      <test121 value="3.7e-05" count="1"></test121>
-    </test12>
-  </test1>
-  <test2 value="7e-05" count="2"></test2>
-</program_root_name>
+<node name="program_root_name" value="0.00069" count="1">
+  <node name="test1" value="0.000378" count="1">
+    <node name="test11" value="4.3e-05" count="1"></node>
+    <node name="test12" value="0.000153" count="2">
+      <node name="test121" value="3.7e-05" count="1"></node>
+    </node>
+  </node>
+  <node name="test2" value="7e-05" count="2"></node>
+</node>
 ```
 
 ### QGProfileAggregator:
@@ -132,6 +132,6 @@ A Brief Example is illustrated below to use it:
 
 ```python
 qg_profile_agg = QGProfileAggregator('/your/file/path/*.xml', '/path/to/your/file/filename.xml')
-qg_profile_agg.generate_file() # this agrregates all the json files into 1 file
+qg_profile_agg.generate_file() # this agrregates all the json/xml files into 1 file
 
 ```

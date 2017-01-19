@@ -45,12 +45,12 @@ class QGProfiler(object):
             return _dict
 
         def recursive_xml_generator(node):
-            node_name = node.get_name().replace(' ', '_')
+            node_name = node.get_name()
             node_value = str(node.get_value())
             node_count = str(node.get_count())
-            _xml = '<' + node_name + ' value="' + node_value + '" count="' + node_count + '">'
+            _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '">'
             _xml += ''.join([recursive_xml_generator(child_node) for child_node in node.get_children()]) 
-            _xml += '</' + node_name + '>'
+            _xml += '</node>'
             return _xml
 
         if self.file_type == 'json':
