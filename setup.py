@@ -16,7 +16,7 @@ setup(
     long_description=read('README.md'),
     keywords = ['profiler', 'monitoring', 'logging', 'utility'],
     zip_safe=False,
-    include_package_data=True
+    include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Topic :: Utilities',
