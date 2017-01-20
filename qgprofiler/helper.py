@@ -13,8 +13,10 @@ def get_file_type(file_path):
         return 'json'
     elif filename.endswith('.xml'):
         return 'xml'
+    elif filename.endswith('.html'):
+        return 'html'
     else:
-        raise ValueError('filename should either end with .json or .xml')
+        raise ValueError('filename should either end with .json or .xml' or '.html')
 
 def get_real_file_path(file_path):
     filename = file_path.split('/')[-1]

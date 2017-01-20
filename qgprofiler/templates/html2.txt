@@ -1,0 +1,1 @@
+;var flameGraph=d3.flameGraph().height(480).width(960).cellHeight(18).transitionDuration(750).transitionEase("cubic-in-out").sort(!0).title(""),tip=d3.tip().direction("s").offset([8,0]).attr("class","d3-flame-graph-tip").html(function(t){return"name: "+t.name+", value: "+t.value});flameGraph.tooltip(tip),d3.select("#chart").datum(data).call(flameGraph)</script></body></html>

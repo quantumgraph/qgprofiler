@@ -1,6 +1,7 @@
 from .node import Node, NodeList
 from .helper import get_real_file_path, get_file_type
 import json
+from .constants import HTML1_TXT, HTML2_TXT
 
 class QGProfiler(object):
     def __init__(self, root_name, file_path):
@@ -60,6 +61,11 @@ class QGProfiler(object):
         elif self.file_type == 'xml':
             text = recursive_xml_generator(self.root_node)
             self.write_file(text)
+        elif self.file_type == 'html':
+            _json = recursive_json_generator(self.root_node)
+            text = json.dumps(_json)
+            html_text = HTML1_TXT + text + HTML2_TXT
+            self.write_file(html_text)
 
     def write_file(self, text):
         with open(self.file_path, 'w') as f:
