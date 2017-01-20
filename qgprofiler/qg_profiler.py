@@ -40,14 +40,14 @@ class QGProfiler(object):
         def recursive_json_generator(node):
             _dict = {}
             _dict['name'] = node.get_name()
-            _dict['value'] = node.get_value()
+            _dict['value'] = round(node.get_value(), 6)
             _dict['count'] = node.get_count()
             _dict['children'] = [recursive_json_generator(child_node) for child_node in node.get_children()]
             return _dict
 
         def recursive_xml_generator(node):
             node_name = node.get_name()
-            node_value = str(node.get_value())
+            node_value = str(round(node.get_value(), 6))
             node_count = str(node.get_count())
             _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '">'
             _xml += ''.join([recursive_xml_generator(child_node) for child_node in node.get_children()]) 
