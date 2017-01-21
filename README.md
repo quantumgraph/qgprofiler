@@ -23,7 +23,7 @@ using setuptools:
 ```sh
 $ git clone https://github.com/quantumgraph/qgprofiler
 $ cd qgprofiler
-$ pip install qgprofiler
+$ python setup.py install
 ```
 
 Usage
@@ -37,7 +37,7 @@ QGProfiler takes 2 arguments:
  - name for the program (this will be the root name of the stack)
  - output filename with path (the filename should end with .json or .xml; if path is not specified than it generates in the current folder)  
 
-This class contains few functions which can be used to evaluate the time taken by each function/module and the number of times the same function/module has been called. The time taken is determined by using simple ```push('name')``` (name can be function name / db query / class module / etc.)and ```pop()``` when the execution of the function is done. After the end of the program user has to call ```end()``` to end the root program time and then ```generate_file()``` is used for generating either xml or json file.  
+This class contains few functions which can be used to evaluate the time taken by each function/module and the number of times the same function/module has been called. The time taken is determined by using simple ```push('name')``` (name can be function name / db query / class module / etc.)and ```pop()``` when the execution of the function is done. After the end of the program user has to call ```end()``` to end the root program time and then ```generate_file()``` is used for generating either xml or json file. By default QGProfiler will not round the number of values while generate_file to get maximum precision, you can round those values by passing an argument like ```generate_file(rounding_no=6)``` or just ```generate_file(6)```.  
 
 A Brief Example is illustrated below with the output to get started:
 
@@ -126,7 +126,7 @@ QGProfileAggregator takes 2 arguments:
  - input filepath (takes unix level command, ex: ~/path/*.xml; takes all xml files specified in the given path)
  - output filename with path (the filename should end with .json or .xml; if path is not specified than it generates in the current folder)  
 
-This class contains one function ```generate_file()``` which will aggregate all the files data (.xml or .json whichever is specified or it takes all the files if specified * and process only .xml / .json). This will generate .xml / .json file which ever is specified in output filename.  
+This class contains one function ```generate_file()``` which will aggregate all the files data (.xml or .json whichever is specified or it takes all the files if specified * and process only .xml / .json). This will generate .xml / .json file which ever is specified in output filename. By default QGAggregator will set an argument for rounding the number of value to 6 digits to generate_file, you can overwite it by passing it as argument like ```generate_file(rounding_no=4)``` or just ```generate_file(4)```.  
 
 A Brief Example is illustrated below to use it:
 
