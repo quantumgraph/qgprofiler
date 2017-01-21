@@ -64,7 +64,7 @@ class QGProfileAggregator(object):
             elif each[0] == 'END':
                 current_node = current_node.get_parent()
 
-    def generate_file(self):
+    def generate_file(self, rounding_no=6):
         for file_path in glob.iglob(self.in_file_path):
             filename = file_path.split('/')[-1]
             if filename.endswith('.json'):
@@ -82,4 +82,4 @@ class QGProfileAggregator(object):
             qg_profiler.root_node = self.root_node.get_child(0)
         else:
             qg_profiler.root_node = self.root_node
-        return qg_profiler.generate_file()
+        qg_profiler.generate_file(rounding_no)

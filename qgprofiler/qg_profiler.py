@@ -36,18 +36,24 @@ class QGProfiler(object):
         else:
             raise ValueError('You are not at the root node')
 
-    def generate_file(self):
+    def generate_file(self, rounding_no=None):
         def recursive_json_generator(node):
             _dict = {}
+            value = node.get_value()
+            if rounding_no or rounding_no == 0:
+                value = round(value, rounding_no)
             _dict['name'] = node.get_name()
-            _dict['value'] = round(node.get_value(), 6)
+            _dict['value'] = value
             _dict['count'] = node.get_count()
             _dict['children'] = [recursive_json_generator(child_node) for child_node in node.get_children()]
             return _dict
 
         def recursive_xml_generator(node):
             node_name = node.get_name()
-            node_value = str(round(node.get_value(), 6))
+            node_value = node.get_value()
+            if rounding_no or rounding_no == 0:
+                node_value = round(node_value, rounding_no)
+            node_value = str(node_value)
             node_count = str(node.get_count())
             _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '">'
             _xml += ''.join([recursive_xml_generator(child_node) for child_node in node.get_children()]) 
