@@ -68,12 +68,12 @@ class QGProfileAggregator(object):
         for file_path in glob.iglob(self.in_file_path):
             filename = file_path.split('/')[-1]
             if filename.endswith('.json'):
-                with open(filename, 'r') as f:
+                with open(file_path, 'r') as f:
                     raw_json = f.read()
                     _json = json.loads(raw_json)
                     self.add_json(_json)
             elif filename.endswith('.xml'):
-                with open(filename, 'r') as f:
+                with open(file_path, 'r') as f:
                     _xml = f.read()
                     self.add_xml(_xml)
 
