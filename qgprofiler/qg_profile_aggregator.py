@@ -1,12 +1,12 @@
 from node import Node, NodeList
 from .qg_profiler import QGProfiler
-from .helper import get_real_file_path, get_file_type, xml_scanner
+from .helper import get_real_file_path, get_file_type, xml_scanner, read_attributes_from_xml
 import glob
 import json
 
 class QGProfileAggregator(object):
     def __init__(self, in_file_path, out_file_path):
-        self.root_node = Node('i_am_root', None)
+        self.root_node = Node('i_am_root', None, {})
         self.in_file_path = get_real_file_path(in_file_path)
         get_file_type(out_file_path)
         self.out_file_path = get_real_file_path(out_file_path)
@@ -33,7 +33,8 @@ class QGProfileAggregator(object):
         value = _json['value']
         count = _json['count']
         children = _json['children']
-        new_node = Node(name, parent_node)
+        attributes = _json['attributes']
+        new_node = Node(name, parent_node, attributes)
         new_node.set_value(value)
         new_node.set_count(count)
 
@@ -50,9 +51,10 @@ class QGProfileAggregator(object):
                 name = str(each[2]['name'])
                 value = float(each[2]['value'])
                 count = int(each[2]['count'])
+                attributes = read_attributes_from_xml(each[2]['attributes'])
                 index = current_node.is_child_in_children(name)
                 if index == -1:
-                    new_node = Node(name, current_node)
+                    new_node = Node(name, current_node, attributes)
                     new_node.set_value(value)
                     new_node.set_count(count)
                     current_node.add_child(new_node)

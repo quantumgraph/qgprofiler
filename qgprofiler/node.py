@@ -2,7 +2,7 @@ from datetime import datetime
 from copy import deepcopy
 
 class Node(object):
-    def __init__(self, name, parent_node):
+    def __init__(self, name, parent_node, attributes):
         self.__name = name
         self.__modified_time = datetime.utcnow()
         self.__parent_node = parent_node
@@ -10,6 +10,7 @@ class Node(object):
         self.__index_of_child = {}
         self.__value = 0
         self.__count = 1
+        self.__attributes = deepcopy(attributes)
 
     def __repr__(self):
         return '<%s.Node object with value %s at %s>' %(self.__name, self.__value, hex(id(self)))
@@ -45,6 +46,18 @@ class Node(object):
 
     def increment_count_by(self, count):
         self.__count += count
+
+    def update_attribute(self, attr, value):
+        if self.__attributes[attr]['type'] == 'max':
+            self.__attributes[attr]['value'] = max(self.__attributes[attr]['value'], value)
+        elif self.__attributes[attr]['type'] == 'sum':
+            self.__attributes[attr]['value'] += value
+
+    def get_attributes(self):
+        return self.__attributes
+
+    def set_attributes(self, attributes):
+        self.__attributes = attributes
 
     def get_children(self):
         return self.__children_node
