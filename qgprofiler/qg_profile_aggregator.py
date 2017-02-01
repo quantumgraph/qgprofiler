@@ -26,6 +26,7 @@ class QGProfileAggregator(object):
                 existing_node = main_node.get_child(index)
                 existing_node.set_value(node.get_value() + existing_node.get_value())
                 existing_node.set_count(node.get_count() + existing_node.get_count())
+                existing_node.set_attributes(node.get_attributes(), existing_node.get_attributes())
                 self.merge_node_list_to_node(existing_node, node.get_children())
 
     def make_node_from_json(self, _json, parent_node):

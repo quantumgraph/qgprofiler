@@ -32,7 +32,9 @@ class QGProfiler(object):
         if self.root_node != self.current_node:
             self.current_node.increment_value()
             self.current_node.modify_time()
-            self.current_node = self.current_node.get_parent()
+            parent_node = self.current_node.get_parent()
+            parent_node.set_attributes(merge_attributes(self.current_node.get_attributes(), parent_node.get_attributes()))
+            self.current_node = parent_node
         else:
             raise ValueError('cannot pop! you have reached root node, try end')
 
@@ -46,16 +48,6 @@ class QGProfiler(object):
             self.root_node.modify_time()
         else:
             raise ValueError('cannot end! you are not at the root node, try pop() or pop_all()')
-
-    def __float_attributes_to_parent(self, node):
-        if len(node.get_children()) == 0:
-            if node != self.root_node:
-                parent_node = node.get_parent()
-                parent_node.set_attributes(merge_attributes(parent_node.get_attributes(), node.get_attributes()))
-        else:
-            for child_node in node.get_children():
-                self.__float_attributes_to_parent(child_node)
-        return node
 
     def generate_file(self, rounding_no=None):
         def recursive_json_generator(node):
