@@ -35,8 +35,8 @@ class QGProfileAggregator(object):
         value = _json['value']
         count = _json['count']
         children = _json['children']
-        attributes = _json['attributes']
-        over_head = _json['overhead']
+        attributes = _json.get('attributes', {})
+        over_head = _json.get('overhead', 0)
         new_node = Node(name, parent_node, attributes)
         new_node.set_value(value)
         new_node.set_count(count)
@@ -55,8 +55,8 @@ class QGProfileAggregator(object):
                 name = str(each[2]['name'])
                 value = float(each[2]['value'])
                 count = int(each[2]['count'])
-                over_head = float(each[2]['overhead'])
-                attributes = read_attributes_from_xml(each[2]['attributes'])
+                over_head = float(each[2].get('overhead', 0))
+                attributes = read_attributes_from_xml(each[2].get('attributes', {}))
                 index = current_node.is_child_in_children(name)
                 if index == -1:
                     new_node = Node(name, current_node, attributes)
