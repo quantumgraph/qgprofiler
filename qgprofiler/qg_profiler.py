@@ -41,7 +41,7 @@ class QGProfiler(object):
             self.current_node.modify_time()
             self.current_node.set_aggregate_attr(merge_attributes(self.current_node.get_attributes(), self.current_node.get_aggregate_attr()))
             parent_node = self.current_node.get_parent()
-            parent_node.set_aggregate_attr(merge_attributes(parent_node.get_aggregate_attr(), self.current_node.get_attributes()))
+            parent_node.set_attributes(merge_attributes(parent_node.get_attributes(), self.current_node.get_attributes()))
             self.current_node.set_attributes(deepcopy(self.attributes))
             self.current_node.update_over_head((datetime.now() - datetime_now).total_seconds())
             self.current_node = parent_node
@@ -57,6 +57,7 @@ class QGProfiler(object):
         if self.root_node == self.current_node:
             self.root_node.increment_value()
             self.root_node.modify_time()
+            self.root_node.set_aggregate_attr(merge_attributes(self.root_node.get_attributes(), self.root_node.get_aggregate_attr()))
             self.root_node.update_over_head((datetime.now() - datetime_now).total_seconds())
         else:
             raise ValueError('cannot end! you are not at the root node, try pop() or pop_all()')
