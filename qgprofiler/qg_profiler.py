@@ -1,6 +1,8 @@
+import json
+from datetime import datetime
+from copy import deepcopy
 from .node import Node, NodeList
 from .helper import get_real_file_path, get_file_type, get_node_attributes, make_attributes_for_xml, merge_attributes
-import json
 from .constants import HTML1_TXT, HTML2_TXT
 
 class QGProfiler(object):
@@ -12,6 +14,7 @@ class QGProfiler(object):
         self.file_path = get_real_file_path(file_path)
 
     def push(self, name):
+        datetime_now = datetime.now()
         index = self.current_node.is_child_in_children(name)
         if index == -1:
             new_node = Node(name, self.current_node, self.attributes)
@@ -21,19 +24,26 @@ class QGProfiler(object):
             self.current_node = self.current_node.get_child(index)
             self.current_node.increment_count()
             self.current_node.modify_time()
+        self.current_node.update_over_head((datetime.now() - datetime_now).total_seconds())
 
     def update(self, attr, value):
+        datetime_now = datetime.now()
         if attr in self.attributes:
             self.current_node.update_attribute(attr, value)
+            self.current_node.update_over_head((datetime.now() - datetime_now).total_seconds())
         else:
             raise ValueError('cannot update attribute which is not intialized')
 
     def pop(self):
+        datetime_now = datetime.now()
         if self.root_node != self.current_node:
             self.current_node.increment_value()
             self.current_node.modify_time()
+            self.current_node.set_aggregate_attr(merge_attributes(self.current_node.get_attributes(), self.current_node.get_aggregate_attr()))
             parent_node = self.current_node.get_parent()
-            parent_node.set_attributes(merge_attributes(self.current_node.get_attributes(), parent_node.get_attributes()))
+            parent_node.set_aggregate_attr(merge_attributes(parent_node.get_aggregate_attr(), self.current_node.get_attributes()))
+            self.current_node.set_attributes(deepcopy(self.attributes))
+            self.current_node.update_over_head((datetime.now() - datetime_now).total_seconds())
             self.current_node = parent_node
         else:
             raise ValueError('cannot pop! you have reached root node, try end')
@@ -43,9 +53,11 @@ class QGProfiler(object):
             self.pop()
 
     def end(self):
+        datetime_now = datetime.now()
         if self.root_node == self.current_node:
             self.root_node.increment_value()
             self.root_node.modify_time()
+            self.root_node.update_over_head((datetime.now() - datetime_now).total_seconds())
         else:
             raise ValueError('cannot end! you are not at the root node, try pop() or pop_all()')
 
@@ -58,7 +70,8 @@ class QGProfiler(object):
             _dict['name'] = node.get_name()
             _dict['value'] = value
             _dict['count'] = node.get_count()
-            _dict['attributes'] = node.get_attributes()
+            _dict['overhead'] = node.get_over_head()
+            _dict['attributes'] = node.get_aggregate_attr()
             _dict['children'] = [recursive_json_generator(child_node) for child_node in node.get_children()]
             return _dict
 
@@ -69,8 +82,9 @@ class QGProfiler(object):
                 node_value = round(node_value, rounding_no)
             node_value = str(node_value)
             node_count = str(node.get_count())
-            node_attributes = make_attributes_for_xml(node.get_attributes())
-            _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '" attributes="' + node_attributes + '">'
+            node_over_head = str(node.get_over_head())
+            node_attributes = make_attributes_for_xml(node.get_aggregate_attr())
+            _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '" overhead="' + node_over_head + '" attributes="' + node_attributes + '">'
             _xml += ''.join([recursive_xml_generator(child_node) for child_node in node.get_children()]) 
             _xml += '</node>'
             return _xml

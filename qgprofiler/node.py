@@ -9,8 +9,10 @@ class Node(object):
         self.__children_node = NodeList()
         self.__index_of_child = {}
         self.__value = 0
+        self.__over_head = 0
         self.__count = 1
         self.__attributes = deepcopy(attributes)
+        self.__aggregate_attr = deepcopy(attributes)
 
     def __repr__(self):
         return '<%s.Node object with value %s at %s>' %(self.__name, self.__value, hex(id(self)))
@@ -29,6 +31,15 @@ class Node(object):
 
     def set_value(self, value):
         self.__value = value
+
+    def get_over_head(self):
+        return self.__over_head
+
+    def set_over_head(self, value):
+        self.__over_head = value
+
+    def update_over_head(self, value):
+        self.__over_head += value
 
     def set_count(self, count):
         self.__count = count
@@ -52,6 +63,12 @@ class Node(object):
             self.__attributes[attr]['value'] = max(self.__attributes[attr]['value'], value)
         elif self.__attributes[attr]['type'] == 'sum':
             self.__attributes[attr]['value'] += value
+
+    def get_aggregate_attr(self):
+        return self.__aggregate_attr
+
+    def set_aggregate_attr(self, aggregate_attr):
+        self.__aggregate_attr = aggregate_attr
 
     def get_attributes(self):
         return self.__attributes

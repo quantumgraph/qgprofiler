@@ -1,6 +1,6 @@
 from node import Node, NodeList
 from .qg_profiler import QGProfiler
-from .helper import get_real_file_path, get_file_type, xml_scanner, read_attributes_from_xml
+from .helper import get_real_file_path, get_file_type, xml_scanner, read_attributes_from_xml, merge_attributes
 import glob
 import json
 
@@ -24,9 +24,10 @@ class QGProfileAggregator(object):
                 main_node.add_child(node)
             else:
                 existing_node = main_node.get_child(index)
-                existing_node.set_value(node.get_value() + existing_node.get_value())
-                existing_node.set_count(node.get_count() + existing_node.get_count())
-                existing_node.set_attributes(node.get_attributes(), existing_node.get_attributes())
+                existing_node.increment_value_by(node.get_value())
+                existing_node.increment_count_by(node.get_count())
+                existing_node.set_aggregate_attr(merge_attributes(node.get_aggregate_attr(), existing_node.get_aggregate_attr()))
+                existing_node.update_over_head(node.get_over_head())
                 self.merge_node_list_to_node(existing_node, node.get_children())
 
     def make_node_from_json(self, _json, parent_node):
@@ -35,9 +36,11 @@ class QGProfileAggregator(object):
         count = _json['count']
         children = _json['children']
         attributes = _json['attributes']
+        over_head = _json['overhead']
         new_node = Node(name, parent_node, attributes)
         new_node.set_value(value)
         new_node.set_count(count)
+        new_node.set_over_head(over_head)
 
         for child in children:
             child_node = self.make_node_from_json(child, new_node)
@@ -52,18 +55,22 @@ class QGProfileAggregator(object):
                 name = str(each[2]['name'])
                 value = float(each[2]['value'])
                 count = int(each[2]['count'])
+                over_head = float(each[2]['overhead'])
                 attributes = read_attributes_from_xml(each[2]['attributes'])
                 index = current_node.is_child_in_children(name)
                 if index == -1:
                     new_node = Node(name, current_node, attributes)
                     new_node.set_value(value)
                     new_node.set_count(count)
+                    new_node.set_over_head(over_head)
                     current_node.add_child(new_node)
                     current_node = new_node
                 else:
                     current_node = current_node.get_child(index)
                     current_node.increment_value_by(value)
                     current_node.increment_count_by(count)
+                    current_node.set_aggregate_attr(merge_attributes(attributes, current_node.get_aggregate_attr()))
+                    current_node.update_over_head(over_head)
             elif each[0] == 'END':
                 current_node = current_node.get_parent()
 
