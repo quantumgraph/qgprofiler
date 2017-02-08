@@ -13,6 +13,14 @@ class QGProfiler(object):
         self.file_type = get_file_type(file_path)
         self.file_path = get_real_file_path(file_path)
 
+    def push_pop(self, method):
+        def self_push_pop(*args, **kw):
+            self.push(method.__name__ + '()')
+            result = method(*args, **kw)
+            self.pop()
+            return result
+        return self_push_pop
+
     def push(self, name):
         datetime_now = datetime.now()
         index = self.current_node.is_child_in_children(name)
