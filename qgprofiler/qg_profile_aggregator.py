@@ -8,15 +8,10 @@ class QGProfileAggregator(object):
     def __init__(self, in_file_path, out_file_path):
         self.root_node = Node('i_am_root', None, {})
         self.in_file_path = get_real_file_path(in_file_path)
-        get_file_type(out_file_path)
+        self.file_type = get_file_type(out_file_path)
         self.out_file_path = get_real_file_path(out_file_path)
 
-    def add_json(self, _json):
-        new_node = self.make_node_from_json(_json, self.root_node)
-        new_node_list = NodeList()
-        new_node_list.append(new_node)
-        self.merge_node_list_to_node(self.root_node, new_node_list)
-
+    @classmethod
     def merge_node_list_to_node(self, main_node, node_list):
         for node in node_list:
             index = main_node.is_child_in_children(node.get_name())
@@ -30,6 +25,7 @@ class QGProfileAggregator(object):
                 existing_node.update_over_head(node.get_over_head())
                 self.merge_node_list_to_node(existing_node, node.get_children())
 
+    @classmethod
     def make_node_from_json(self, _json, parent_node):
         name = _json['name']
         value = _json['value']
@@ -46,6 +42,12 @@ class QGProfileAggregator(object):
             child_node = self.make_node_from_json(child, new_node)
             new_node.add_child(child_node)
         return new_node
+
+    def add_json(self, _json):
+        new_node = self.make_node_from_json(_json, self.root_node)
+        new_node_list = NodeList()
+        new_node_list.append(new_node)
+        self.merge_node_list_to_node(self.root_node, new_node_list)
 
     def add_xml(self, _xml):
         current_node = self.root_node
@@ -74,7 +76,7 @@ class QGProfileAggregator(object):
             elif each[0] == 'END':
                 current_node = current_node.get_parent()
 
-    def generate_file(self, rounding_no=6):
+    def merge_all_files(self):
         for file_path in glob.iglob(self.in_file_path):
             filename = file_path.split('/')[-1]
             if filename.endswith('.json'):
@@ -87,9 +89,13 @@ class QGProfileAggregator(object):
                     _xml = f.read()
                     self.add_xml(_xml)
 
-        qg_profiler = QGProfiler('test', self.out_file_path)
+    def generate_file(self, rounding_no=6):
+        self.merge_all_files()
+
         if len(self.root_node.get_children()) == 1:
-            qg_profiler.root_node = self.root_node.get_child(0)
+            root_node = self.root_node.get_child(0)
         else:
-            qg_profiler.root_node = self.root_node
-        qg_profiler.generate_file(rounding_no)
+            root_node = self.root_node
+        text = QGProfiler.get_text_to_write(root_node, self.file_type, rounding_no)
+        with open(self.out_file_path, 'w') as f:
+            f.write(text)

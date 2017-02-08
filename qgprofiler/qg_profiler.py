@@ -1,17 +1,19 @@
+import os
 import json
 from datetime import datetime
 from copy import deepcopy
 from .node import Node, NodeList
-from .helper import get_real_file_path, get_file_type, get_node_attributes, make_attributes_for_xml, merge_attributes
-from .constants import HTML1_TXT, HTML2_TXT
+from .helper import get_real_file_path, get_node_attributes, make_attributes_for_xml, merge_attributes
+from .constants import HTML1_TXT, HTML2_TXT, FILE_PATH
 
 class QGProfiler(object):
-    def __init__(self, root_name, file_path, attributes={}):
+    def __init__(self, root_name, attributes={}):
         self.attributes = get_node_attributes(attributes)
         self.root_node = Node(root_name, None, self.attributes)
         self.current_node = self.root_node
-        self.file_type = get_file_type(file_path)
-        self.file_path = get_real_file_path(file_path)
+        self.file_type = 'xml'
+        file_name = root_name + '-' + datetime.now().strftime('%Y-%m-%d-%H%M%S') + '.' + self.file_type
+        self.file_path = get_real_file_path(os.path.join(FILE_PATH, file_name))
 
     def push(self, name):
         datetime_now = datetime.now()
@@ -62,47 +64,50 @@ class QGProfiler(object):
         else:
             raise ValueError('cannot end! you are not at the root node, try pop() or pop_all()')
 
+    @classmethod
+    def recursive_json_generator(self, node, rounding_no):
+        _dict = {}
+        value = node.get_value()
+        if rounding_no or rounding_no == 0:
+            value = round(value, rounding_no)
+        _dict['name'] = node.get_name()
+        _dict['value'] = value
+        _dict['count'] = node.get_count()
+        _dict['overhead'] = node.get_over_head()
+        _dict['attributes'] = node.get_aggregate_attr()
+        _dict['children'] = [self.recursive_json_generator(child_node, rounding_no) for child_node in node.get_children()]
+        return _dict
+
+    @classmethod
+    def recursive_xml_generator(self, node, rounding_no):
+        node_name = node.get_name()
+        node_value = node.get_value()
+        if rounding_no or rounding_no == 0:
+            node_value = round(node_value, rounding_no)
+        node_value = str(node_value)
+        node_count = str(node.get_count())
+        node_over_head = str(node.get_over_head())
+        node_attributes = make_attributes_for_xml(node.get_aggregate_attr())
+        _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '" overhead="' + node_over_head + '" attributes="' + node_attributes + '">'
+        _xml += ''.join([self.recursive_xml_generator(child_node, rounding_no) for child_node in node.get_children()]) 
+        _xml += '</node>'
+        return _xml
+
+    @classmethod
+    def get_text_to_write(self, root_node, file_type, rounding_no):
+        text = ''
+        if file_type == 'json':
+            _json = self.recursive_json_generator(root_node, rounding_no)
+            text = json.dumps(_json)
+        elif file_type == 'xml':
+            text = self.recursive_xml_generator(root_node, rounding_no)
+        elif file_type == 'html':
+            _json = self.recursive_json_generator(root_node, rounding_no)
+            _json = json.dumps(_json)
+            text = HTML1_TXT + _json + HTML2_TXT
+        return text
+
     def generate_file(self, rounding_no=None):
-        def recursive_json_generator(node):
-            _dict = {}
-            value = node.get_value()
-            if rounding_no or rounding_no == 0:
-                value = round(value, rounding_no)
-            _dict['name'] = node.get_name()
-            _dict['value'] = value
-            _dict['count'] = node.get_count()
-            _dict['overhead'] = node.get_over_head()
-            _dict['attributes'] = node.get_aggregate_attr()
-            _dict['children'] = [recursive_json_generator(child_node) for child_node in node.get_children()]
-            return _dict
-
-        def recursive_xml_generator(node):
-            node_name = node.get_name()
-            node_value = node.get_value()
-            if rounding_no or rounding_no == 0:
-                node_value = round(node_value, rounding_no)
-            node_value = str(node_value)
-            node_count = str(node.get_count())
-            node_over_head = str(node.get_over_head())
-            node_attributes = make_attributes_for_xml(node.get_aggregate_attr())
-            _xml = '<node '+ 'name="' + node_name + '" value="' + node_value + '" count="' + node_count + '" overhead="' + node_over_head + '" attributes="' + node_attributes + '">'
-            _xml += ''.join([recursive_xml_generator(child_node) for child_node in node.get_children()]) 
-            _xml += '</node>'
-            return _xml
-
-        if self.file_type == 'json':
-            _json = recursive_json_generator(self.root_node)
-            text = json.dumps(_json)
-            self.write_file(text)
-        elif self.file_type == 'xml':
-            text = recursive_xml_generator(self.root_node)
-            self.write_file(text)
-        elif self.file_type == 'html':
-            _json = recursive_json_generator(self.root_node)
-            text = json.dumps(_json)
-            html_text = HTML1_TXT + text + HTML2_TXT
-            self.write_file(html_text)
-
-    def write_file(self, text):
+        text = self.get_text_to_write(self, self.root_node, self.file_type, rounding_no)
         with open(self.file_path, 'w') as f:
             f.write(text)
