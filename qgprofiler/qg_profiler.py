@@ -91,7 +91,7 @@ class QGProfiler(object):
                  'try pop() or pop_all()'))
 
     @classmethod
-    def __recursive_json_generator(self, node, rounding_no):
+    def __recursive_json_generator(cls, node, rounding_no):
         _dict = {}
         value = node.get_value()
         if rounding_no or rounding_no == 0:
@@ -102,14 +102,14 @@ class QGProfiler(object):
         _dict['overhead'] = node.get_over_head()
         _dict['attributes'] = node.get_aggregate_attr()
         _dict['children'] = [
-            self.__recursive_json_generator(
+            cls.__recursive_json_generator(
                 child_node, rounding_no
             ) for child_node in node.get_children()
         ]
         return _dict
 
     @classmethod
-    def __recursive_xml_generator(self, node, rounding_no):
+    def __recursive_xml_generator(cls, node, rounding_no):
         node_name = node.get_name()
         node_value = node.get_value()
         if rounding_no or rounding_no == 0:
@@ -122,7 +122,7 @@ class QGProfiler(object):
             node_value + '" count="' + node_count + '" overhead="' + \
             node_over_head + '" attributes="' + node_attributes + '">'
         _xml += ''.join([
-            self.__recursive_xml_generator(
+            cls.__recursive_xml_generator(
                 child_node, rounding_no
             ) for child_node in node.get_children()
         ])
@@ -130,15 +130,15 @@ class QGProfiler(object):
         return _xml
 
     @classmethod
-    def _get_text_to_write(self, root_node, file_type, rounding_no):
+    def _get_text_to_write(cls, root_node, file_type, rounding_no):
         text = ''
         if file_type == 'json':
-            _json = self.__recursive_json_generator(root_node, rounding_no)
+            _json = cls.__recursive_json_generator(root_node, rounding_no)
             text = json.dumps(_json)
         elif file_type == 'xml':
-            text = self.__recursive_xml_generator(root_node, rounding_no)
+            text = cls.__recursive_xml_generator(root_node, rounding_no)
         elif file_type == 'html':
-            _json = self.__recursive_json_generator(root_node, rounding_no)
+            _json = cls.__recursive_json_generator(root_node, rounding_no)
             _json = json.dumps(_json)
             text = HTML1_TXT + _json + HTML2_TXT
         return text
