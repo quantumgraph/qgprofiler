@@ -1,7 +1,9 @@
 from datetime import datetime
 from copy import deepcopy
 
+
 class Node(object):
+
     def __init__(self, name, parent_node, attributes):
         self.__name = name
         self.__modified_time = datetime.utcnow()
@@ -15,7 +17,8 @@ class Node(object):
         self.__aggregate_attr = deepcopy(attributes)
 
     def __repr__(self):
-        return '<%s.Node object with value %s at %s>' %(self.__name, self.__value, hex(id(self)))
+        return '<%s.Node object with value %s at %s>' % (
+            self.__name, self.__value, hex(id(self)))
 
     def get_name(self):
         return self.__name
@@ -60,7 +63,8 @@ class Node(object):
 
     def update_attribute(self, attr, value):
         if self.__attributes[attr]['type'] == 'max':
-            self.__attributes[attr]['value'] = max(self.__attributes[attr]['value'], value)
+            self.__attributes[attr]['value'] = max(
+                self.__attributes[attr]['value'], value)
         elif self.__attributes[attr]['type'] == 'sum':
             self.__attributes[attr]['value'] += value
 
@@ -103,15 +107,17 @@ class Node(object):
 
 
 class NodeList(list):
+
     def item(self, index):
         if 0 <= index < len(self):
             return self[index]
 
     def __repr__(self):
-        return '<NodeList object with %s Nodes at %s>' %(len(self), hex(id(self)))
+        return '<NodeList object with %s Nodes at %s>' % (
+            len(self), hex(id(self)))
 
     length = property(lambda self: len(self),
-                      doc="The number of nodes in the NodeList.")
+                      doc='The number of nodes in the NodeList.')
 
     def copy(self):
         return self

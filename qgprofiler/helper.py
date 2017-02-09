@@ -5,9 +5,11 @@ XML = re.compile("<([/?!]?\w+)|&(#?\w+);|([^<>&'\"=\s]+)|(\s+)|(.)")
 
 XML_ENTITIES = {'amp': '&', 'apos': "'", 'gt': '>', 'lt': '<', 'quot': '"'}
 
+
 def make_folder(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
+
 
 def get_file_type(file_path):
     filename = file_path.split('/')[-1]
@@ -18,7 +20,9 @@ def get_file_type(file_path):
     elif filename.endswith('.html'):
         return 'html'
     else:
-        raise ValueError('filename should either end with .json or .xml or .html')
+        raise ValueError(
+            'filename should either end with .json or .xml or .html')
+
 
 def get_real_file_path(file_path):
     filename = file_path.split('/')[-1]
@@ -28,14 +32,17 @@ def get_real_file_path(file_path):
     file_path = os.path.join(folder_path, filename)
     return file_path
 
+
 def get_node_attributes(attributes):
     _dict = {}
     for k, v in attributes.iteritems():
         if v == 'max' or v == 'sum':
             _dict[k] = {'type': v, 'value': 0}
         else:
-            raise ValueError('attributes value should be either "max" or "sum"')
+            raise ValueError(
+                'attributes value should be either "max" or "sum"')
     return _dict
+
 
 def read_attributes_from_xml(attributes_text):
     _dict = {}
@@ -44,6 +51,7 @@ def read_attributes_from_xml(attributes_text):
         _dict[_list[0]] = {'type': _list[1], 'value': float(_list[2])}
     return _dict
 
+
 def make_attributes_for_xml(_dict):
     _xml = []
     for k, v in _dict.iteritems():
@@ -51,17 +59,23 @@ def make_attributes_for_xml(_dict):
         _xml.append(txt)
     return ', '.join(_xml)
 
+
 def merge_attributes(attribute_one, attribute_two):
     not_found = []
     for k, v in attribute_one.iteritems():
         if k in attribute_two:
             if v['type'] == 'max':
                 if attribute_two[k]['type'] != 'max':
-                    raise ValueError('unable to combine same attribute with different type "max" and "sum"')
-                attribute_two[k]['value'] = max(v['value'], attribute_two[k]['value'])
+                    raise ValueError(
+                        'unable to combine same attribute with '
+                        'different type "max" and "sum"')
+                attribute_two[k]['value'] = max(
+                    v['value'], attribute_two[k]['value'])
             elif v['type'] == 'sum':
                 if attribute_two[k]['type'] != 'sum':
-                    raise ValueError('unable to combine same attribute with different type "max" and "sum"')
+                    raise ValueError(
+                        ('unable to combine same attribute with '
+                         'different type "max" and "sum"'))
                 attribute_two[k]['value'] += v['value']
         else:
             not_found.append(k)
@@ -69,9 +83,14 @@ def merge_attributes(attribute_one, attribute_two):
         attribute_two[k] = attribute_one[k]
     return attribute_two
 
+
 def xml_scanner(_xml):
 
-    TAG = 1; ENTITY = 2; STRING = 3; WHITESPACE = 4; SEPARATOR = 5
+    TAG = 1
+    ENTITY = 2
+    STRING = 3
+    WHITESPACE = 4
+    SEPARATOR = 5
 
     def gettoken(space=0, scan=XML.scanner(_xml).match):
         try:
@@ -93,7 +112,7 @@ def xml_scanner(_xml):
                     yield 'END', str(text[1:])
                     code, text = gettoken(1)
                     if text != '>':
-                        raise SyntaxError, 'not proper end tag'
+                        raise SyntaxError('not proper end tag')
                 else:
                     tag = text
                     attrib = {}
@@ -108,19 +127,19 @@ def xml_scanner(_xml):
                             break
                         if text == '?':
                             if _type != text:
-                                raise SyntaxError, 'unexpected quotation mark'
+                                raise SyntaxError('unexpected quotation mark')
                             code, text = gettoken(1)
                             if text != '>':
-                                raise SyntaxError, 'expected end tag'
+                                raise SyntaxError('expected end tag')
                             break
                         if code == STRING:
                             key = text
                             code, text = gettoken(1)
                             if text != '=':
-                                raise SyntaxError, 'expected equal sign'
+                                raise SyntaxError('expected equal sign')
                             code, quote = gettoken(1)
                             if quote != "'" and quote != '"':
-                                raise SyntaxError, 'expected quote'
+                                raise SyntaxError('expected quote')
                             value = []
                             while 1:
                                 code, text = gettoken()
@@ -137,6 +156,7 @@ def xml_scanner(_xml):
         pass
     except SyntaxError:
         raise
+
 
 def fixentity(entity):
     try:
